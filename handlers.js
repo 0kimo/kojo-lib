@@ -8,6 +8,23 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Options = exports.ButtonHandler = void 0;
 class ButtonHandler {
+    /**
+     * @param {ButtonHandlerOptions} options
+     * @description
+     * Seperator = {A:user=0Sapphy} the ":" after the "A"
+     *
+     * Prefix = {A:user=0Saphhy} the "=" after "user"
+     */
+    constructor(options) {
+        if (options === null || options === void 0 ? void 0 : options.args) {
+            this.prefix = options.args.prefix;
+            this.separator = options.args.separator;
+        }
+        else {
+            this.prefix = "=";
+            this.separator = ":";
+        }
+    }
     init(_id) {
         return {
             id: this.getCustomId(_id).id,
@@ -17,6 +34,14 @@ class ButtonHandler {
             },
             options: new Options(this.applyArguments(this.getCustomId(_id).arguments))
         };
+    }
+    executeButton(info, interaction, folder) {
+        try {
+            require(`./handler/${folder ? folder : 'buttons'}/${info.id}`)(interaction, info);
+        }
+        catch (error) {
+            console.error(error);
+        }
     }
     /**
      * @param {string} _id
@@ -62,9 +87,9 @@ class ButtonHandler {
             return;
         const argument = [];
         for (const param of _params) {
-            const exec = param.split("=");
+            const exec = param.split(this.prefix);
             argument.push({
-                name: (_a = exec.at(0)) === null || _a === void 0 ? void 0 : _a.split(':').at(1),
+                name: (_a = exec.at(0)) === null || _a === void 0 ? void 0 : _a.split(this.separator).at(1),
                 value: (_b = exec.at(1)) === null || _b === void 0 ? void 0 : _b.replace('}', '')
             });
         }
