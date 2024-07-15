@@ -5,11 +5,31 @@
  * TIME DAY MONTH DAY-OF-THE-MONTH YEAR
  */
 
-
-import { Arguments, ButtonHandlerCustomIdR } from "./types";
+import { Arguments, ButtonHandlerCustomIdR, ButtonHandlerInitOptions, ButtonHandlerOptions } from "./types";
+import { ChatInputCommandInteraction } from 'discord.js'
 
 export class ButtonHandler {
-    init(_id: string) {
+    separator: string;
+    prefix: string;
+
+    /**
+     * @param {ButtonHandlerOptions} options
+     * @description 
+     * Seperator = {A:user=0Sapphy} the ":" after the "A"
+     * 
+     * Prefix = {A:user=0Saphhy} the "=" after "user"
+     */
+    constructor(options?: ButtonHandlerOptions) {
+        if (options?.args) {
+            this.prefix = options.args.prefix;
+            this.separator = options.args.separator;
+        } else {
+            this.prefix = "=";
+            this.separator = ":";
+        }
+    }
+
+    init(_id: string): ButtonHandlerInitOptions {
         return {
             id: this.getCustomId(_id).id,
             arguments: this.getCustomId(_id).arguments,
@@ -18,6 +38,18 @@ export class ButtonHandler {
             },
 
             options: new Options(this.applyArguments(this.getCustomId(_id).arguments))
+        }
+    }
+
+    executeButton(
+        info: ButtonHandlerInitOptions,
+        interaction?: ChatInputCommandInteraction,
+        path?: string
+    ) {
+        try {
+            require(`${path ? path : './button'}/${info.id}`)(interaction, info);
+        } catch (error) {
+            console.error(error);
         }
     }
 
@@ -64,9 +96,9 @@ export class ButtonHandler {
         const argument: Arguments[] = [];
 
         for (const param of _params) {
-            const exec = param.split("=")
+            const exec = param.split(this.prefix)
             argument.push({
-                name: exec.at(0)?.split(':').at(1),
+                name: exec.at(0)?.split(this.separator).at(1),
                 value: exec.at(1)?.replace('}', '')
             })
         }
