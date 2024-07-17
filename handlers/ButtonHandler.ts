@@ -57,7 +57,7 @@ export class ButtonHandler {
     path?: string,
   ) {
     try {
-      require(`${path ? this.formatPath(path, info) : "./button"}/${info.id}`)(interaction, info);
+      require(`${path ? this.formatPath(path, info) : `./buttons/${info.id?.[0]}`}`)(interaction, info);
     } catch (error) {
       console.error(error);
     }
@@ -122,6 +122,7 @@ export class ButtonHandler {
 
   private formatPath(_p: string, info: AnyHandlerInitReturn) {
     const id = info.id?.[0] ? info.id[0] : info.options.getOption("_dev", true);
+    console.log(id);
     return _p
     .replace(`{{_id}}`, id!);
   }
