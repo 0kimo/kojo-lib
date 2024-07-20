@@ -1,55 +1,47 @@
-import {
-  PermissionsString,
-  ChatInputCommandInteraction,
-  InteractionCollector,
-} from "discord.js";
-import { Options } from "./handlers/utils/Options";
+import { ChatInputCommandInteraction, Message, PermissionsString } from "discord.js"
 
-interface KojoCommand {
-  dev?: boolean;
-  category?: string;
-  options?: {
-    dm_permissions?: boolean;
-    permissions?: {
-      client?: PermissionsString[];
-      member?: PermissionsString[];
-    };
-  };
-
-  command: any;
-  run?: (ctx: ChatInputCommandInteraction) => any;
+export enum Categories {
+    Bot = "bot",
+    Moderation = "moderation",
+    Fun = "fun",
+    NONE = "none"
 }
 
-interface Arguments {
-  name: string | undefined;
-  value: string | undefined;
+export interface ChatInputCommand {
+    options: {
+        category: Categories;
+
+        useAbleIn?: {
+            direct_messages?: boolean;
+        }
+
+        permissions?: {
+            client?: PermissionsString[];
+        }
+    }
+
+    command: any;
+    run: (interaction: ChatInputCommandInteraction) => {};
 }
 
-interface AnyHandlerOptions {
-  args?: {
-    separator: string;
-    prefix: string;
-  };
-}
+export interface MessageCommand {
+    command: {
+        name: string;
+        description: string;
+        catgory: Categories | string;
+        usage: string | null
+    }
 
-interface AnyHandlerCustomIdReturn {
-  id: RegExpMatchArray | null;
-  arguments?: RegExpMatchArray | null;
-}
+    options?: {
+        useAbleIn?: {
+            direct_messages?: boolean;
+        }
 
-interface AnyHandlerInitReturn {
-  id: RegExpMatchArray | null;
-  arguments: RegExpMatchArray | null | undefined;
-  options: Options;
-  parsed: {
-    arguments: Arguments[] | undefined;
-  };
-}
+        permissions?: {
+            client?: PermissionsString[];
+            user?: PermissionsString[];
+        }
+    }
 
-export {
-  KojoCommand,
-  AnyHandlerCustomIdReturn,
-  AnyHandlerOptions,
-  AnyHandlerInitReturn,
-  Arguments,
-};
+    run: (message: Message, args: string[]) => {};
+}
